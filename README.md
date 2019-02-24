@@ -4,6 +4,8 @@ https://github.com/boltdb/bolt
 
 ```sh
 go get github.com/boltdb/bolt/...
+
+curl http://localhost/backup > my.db
 ```
 
 ```go
@@ -153,12 +155,57 @@ db.View(func(tx *bolt.Tx) error {
   return nil
 })
 
-func () CreateBucket() ()
-func () CreateBucketIfNotExists() ()
-func () DeleteCucket() error
+func (*Bucket) CreateBucket(key []bute) (*Bucket, error)
+func (*Bucket) CreateBucketIfNotExists(key []byte) (*Bucket, error)
+func (*Bucket) DeleteCucket(key []byte) error
+
+func createUser(accountID int, u *User) error {
+  
+  tx, err := db.Begin(true)
+  if err != nil {
+    return err
+  }
+  defer tx.Rollback()
+  
+  root := tx.Bucket([]byte(strconv.FormatUint(accountId, 10)))
+  
+  bkt, err := root.CreateBucketIfNotExists([]byte("USERS"))
+  if err != nil {
+    return err
+  }
+  
+  userID, err := bkt.NextSequence()
+  if err != nil {
+    return err
+  }
+  u.ID = userID
+  
+  if buf, err := json.Marshal(u); err != nil {
+    return err
+  } else if err := bkt.Put([]bute(strconv.FormatUint(u.ID, 10)), bug); err != nil {
+    return err
+  }
+  
+  if err := tx.Commit(); err != nil {
+    return err
+  }
+  
+  return nil
+}
 
 
-
+func BackupHandleFunc(w http.ResponseWriter, req *http.Request) {
+  err := db.View(func(tx *bolt.Tx) error {
+    w.Header().Set("Content-Type", "application.octet-stream")
+    w.Header().Set("Content-Disposiiton", `attachment; filename="my.db"`)
+    w.Header().Set("Content-Length", strconv.Itoa(int(tx.Size())))
+    _, err := tx.WriteTo(w)
+    return err
+  })
+  if err != nil {
+    http.Error(w, err.Error(), http.StatusInternalServerError)
+  }
+}
 
 
 
