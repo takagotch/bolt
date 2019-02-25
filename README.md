@@ -208,7 +208,22 @@ func BackupHandleFunc(w http.ResponseWriter, req *http.Request) {
 }
 
 
-
+go func() {
+  
+  prev := db.Status()
+  
+  for {
+    
+    time.Sleep(10 * time.Second)
+    
+    stats := db.Stats()
+    diff := stats.Sub(&prev)
+    
+    json.NewEncoder(os.Stderr).Encode(diff)
+    
+    prev = stats
+  }
+}()
 
 
 
