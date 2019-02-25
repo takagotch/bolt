@@ -225,9 +225,62 @@ go func() {
   }
 }()
 
+db, err := bolt.Open("my.db", 0666, &bolt.Options{ReadOnly: true})
+if err != nil {
+  log.Fatal(err)
+}
+
+func NewBoltDB(filepath string) *BoltDB {
+  db, err := bolt.Open(filepath+"/demo.db", 0600, nil)
+  if err != nil {
+    log.Fatal(err)
+  }
+  
+  return &BoltDB{db}
+}
+
+type BoltDB struct {
+  db *bolt.DB
+}
+
+func (b *BoltDB) Path() string {
+  return b.db.Path()
+}
+
+func (b *BoltDB) Close() {
+  b.db.Close()
+}
 
 
+String path;
+if (android.os.Build.VERSION.SDK_INT >=android.os.Build.VERSION_CODES.LOLLIPOP) {
+  path = getNoBackupFilesDir().getAbsolutePath();
+} else {
+  path = getFilesDir().getAbsolutePath();
+} 
+Boltmobiledemo.BoltDB botlDB = Boltmobiledemo.NewBoltDB(path)
 
+- (void)demo {
+  NSString* path = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
+    NSUserDomainMask,
+    YES) objectAtIndex:0];
+  GoBoltmobiledemoBoltDB * demo = GoBoltmobileedmoNewBoltDB(path);
+  [demo close];
+}
+
+- (BOOL)addSkipBackupAttributeToItemAtPath:(NSString *) filePathString
+{
+  NSURL* URL = [NSURL fileURLWithPath: filePathString];
+  assert([[NSSFileManager defaultManager] fileExistsAtPath: [URL path]]);
+  
+  NSError *error = nil;
+  BOOL success = [URL setResourceValue: [NSNumber numberWithBool: YES]
+    forKey: NSURLIsExcludedFromBackupKey error: &error];
+  if(!success) {
+    NSLog(@"Error excluding %@ from backup %@", [URL lastPathComponent], error);
+  }
+  return success;
+}
 ```
 
 ```
